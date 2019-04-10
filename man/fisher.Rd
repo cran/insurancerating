@@ -4,12 +4,14 @@
 \alias{fisher}
 \title{Fisher's natural breaks classification}
 \usage{
-fisher(vec, n = 7)
+fisher(vec, n = 7, diglab = 2)
 }
 \arguments{
 \item{vec}{a continuous numerical variable}
 
 \item{n}{number of classes required (n = 7 is default)}
+
+\item{diglab}{number of digits (n = 2 is default)}
 }
 \value{
 Vector with clustering
