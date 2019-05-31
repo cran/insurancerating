@@ -4,8 +4,9 @@
 \alias{construct_tariff_classes}
 \title{Construct insurance tariff classes}
 \usage{
-construct_tariff_classes(data, nclaims, x, exposure,
-  approximation = TRUE, cp = 0)
+construct_tariff_classes(data, nclaims, x, exposure, amount = NULL,
+  pure_premium = NULL, model = "frequency", alpha = 0,
+  niterations = 10000, ntrees = 200, seed = 1)
 }
 \arguments{
 \item{data}{data.frame of an insurance portfolio}
@@ -16,11 +17,20 @@ construct_tariff_classes(data, nclaims, x, exposure,
 
 \item{exposure}{column in \code{data} with exposure}
 
-\item{approximation}{if TRUE, elements in \code{nclaims} and \code{exposure} are aggregated to the level of unique elements in \code{x}.
-Approximation should be used for large insurance portfolios to avoid excessive computation times (default is TRUE).}
+\item{amount}{column in \code{data} with claim amount}
 
-\item{cp}{complexity parameter. The complexity parameter (cp) is used to control the number of tariff classes. Higher values for \code{cp}
-render less tariff classes. (\code{cp} = 0 is default).}
+\item{pure_premium}{column in \code{data} with pure premium}
+
+\item{model}{choose either 'frequency', 'severity' or 'burning' (model = 'frequency' is default). See details section.}
+
+\item{alpha}{complexity parameter. The complexity parameter (alpha) is used to control the number of tariff classes. Higher values for \code{alpha}
+render less tariff classes. (\code{alpha} = 0 is default).}
+
+\item{niterations}{in case the run does not converge, it terminates after a specified number of iterations defined by niterations.}
+
+\item{ntrees}{the number of trees in the population.}
+
+\item{seed}{an numeric seed to initialize the random number generator (for reproducibility).}
 }
 \value{
 A list with components
@@ -28,6 +38,8 @@ A list with components
 \item{prediction}{data frame with the predicted claim frequency for each element of vector \code{x}}
 \item{x}{name of variable for which tariff classes are constructed}
 \item{tariff_classes}{values in vector \code{x} coded according to which constructed tariff class they fall}
+\item{model}{either 'frequency' or 'severity'}
+\item{data}{data frame with original data aggregated on the level of the variable for which tariff classes are constructed}
 }
 \description{
 The function provides an interface to finding class intervals for continuous numerical variables. The goal is to bin the continuous factors
@@ -35,19 +47,28 @@ such that categorical risk factors result which capture the effect of the covari
 while being easy to use in a generalized linear model (GLM).
 }
 \details{
-Poisson GAMs are used for fitting the number of claims. The logarithm of the exposure is included as an offset,
-such that the expected number of claims is proportional to the exposure. Subsequently, regression trees are used as a
-technique to bin the resulting GAM estimates into risk homogeneous categories. This method is based on the work by Antonio and Valdez (2012).
+The function provides an interface to finding class intervals for continuous numerical variables in the following three types of models: claim frequency,
+claim severity or burning cost model. The 'frequency' specification uses a Poisson GAM for fitting the number of claims. The logarithm of the exposure is included
+as an offset, sucht that the expected number of claims is proportional to the exposure. The 'severity' specification uses a lognormal GAM for fitting the average
+cost of a claim. The average cost of a claim is defined as the ratio of the claim amount and the number of claims. The number of claims is included as a weight.
+The 'burning' specification uses a lognormal GAM for fitting the pure premium of a claim. The pure premium is obtained by multiplying the estimated frequency and
+the estimated severity of claims. The word burning cost is used here as equivalent of risk premium and pure premium.
+
+Subsequently, evolutionary trees are used as a technique to bin the resulting GAM estimates into risk homogeneous categories. This method is based on the work
+by Henckaerts et al. (2018). See Grubinger et al. (2014) for more details on the various parameters that control aspects of the evtree fit.
 }
 \examples{
 construct_tariff_classes(MTPL, nclaims, age_policyholder, exposure)
 }
 \references{
+Henckaerts, R., Antonio, K., Clijsters, M. and Verbelen, R. (2018). A data driven binning strategy for the construction of insurance tariff classes.
+Scandinavian Actuarial Journal, 2018:8, 681-705. doi:10.1080/03461238.2018.1429300.
+
 Antonio, K. and Valdez, E. A. (2012). Statistical concepts of a priori and a posteriori risk classification in insurance.
 Advances in Statistical Analysis, 96(2):187–224. doi:10.1007/s10182-011-0152-7.
 
-Therneau, T. and Atkinson, B. (2018). rpart: Recursive Partitioning and Regression Trees.
-R package version 4.1-13. \url{https://CRAN.R-project.org/package=rpart}
+Grubinger, T., Zeileis, A., and Pfeiffer, K.-P. (2014). evtree: Evolutionary learning of globally
+optimal classification and regression trees in R. Journal of Statistical Software, 61(1):1–29. doi:10.18637/jss.v061.i01.
 
 Wood, S.N. (2011). Fast stable restricted maximum likelihood and marginal likelihood estimation of semiparametric
 generalized linear models. Journal of the Royal Statistical Society (B) 73(1):3-36. doi:10.1111/j.1467-9868.2010.00749.x.
