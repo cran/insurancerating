@@ -4,15 +4,16 @@
 \alias{autoplot.insurancerating}
 \title{Automatically create a ggplot for objects obtained from construct_tariff_classes()}
 \usage{
-\method{autoplot}{insurancerating}(x, conf.int = FALSE,
+\method{autoplot}{insurancerating}(x, conf_int = FALSE,
   clusters = TRUE, color_gam = "steelblue", color_splits = "grey50",
-  xstep = 10, add_points = FALSE, size_points = 1,
-  color_points = "black")
+  xstep = NULL, add_points = FALSE, size_points = 1,
+  color_points = "black", rotate_labels = FALSE,
+  remove_outliers = NULL)
 }
 \arguments{
 \item{x}{an object as produced by \code{construct_tariff_classes()}}
 
-\item{conf.int}{determines whether 95\% confidence intervals will be plotted. The default is \code{conf.int = FALSE}}
+\item{conf_int}{determines whether 95\% confidence intervals will be plotted. The default is \code{conf_int = FALSE}}
 
 \item{clusters}{numerical vector with splits as produced by \code{construct_tariff_classes()}}
 
@@ -20,13 +21,17 @@
 
 \item{color_splits}{change the color of the splits in the graph ("grey50" is default)}
 
-\item{xstep}{set step size for horizontal axis (default is \code{10})}
+\item{xstep}{set step size for labels horizontal axis}
 
 \item{add_points}{add observed frequency/severity points for each level of the variable for which tariff classes are constructed}
 
 \item{size_points}{size for points (1 is default)}
 
 \item{color_points}{change the color of the points in the graph ("black" is default)}
+
+\item{rotate_labels}{rotate x-labels 45 degrees (this might be helpful for overlapping x-labels)}
+
+\item{remove_outliers}{do not show observations above this number in the plot. This might be helpful for outliers.}
 }
 \value{
 a ggplot object
