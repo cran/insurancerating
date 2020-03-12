@@ -1,12 +1,11 @@
-#' Automatically create a ggplot for objects obtained from construct_tariff_classes()
+#' Automatically create a ggplot for objects obtained from fit_gam()
 #'
-#' @description Takes an object produced by \code{construct_tariff_classes()}, and plots the fitted GAM.
-#' In addition the constructed tariff classes are shown.
+#' @description Takes an object produced by \code{fit_gam()}, and plots the fitted GAM.
 #'
-#' @param x constructtariffclasses object produced by \code{construct_tariff_classes}
+#' @param x fitgam object produced by \code{fit_gam}
 #' @param conf_int determines whether 95\% confidence intervals will be plotted. The default is \code{conf_int = FALSE}
 #' @param color_gam a color can be specified either by name (e.g.: "red") or by hexadecimal code (e.g. : "#FF1234") (default is "steelblue")
-#' @param color_splits change the color of the splits in the graph ("grey50" is default)
+#' @param x_stepsize set step size for labels horizontal axis
 #' @param show_observations add observed frequency/severity points for each level of the variable for which tariff classes are constructed
 #' @param size_points size for points (1 is default)
 #' @param color_points change the color of the points in the graph ("black" is default)
@@ -22,22 +21,21 @@
 #' library(ggplot2)
 #' library(dplyr)
 #' fit_gam(MTPL, nclaims = nclaims, x = age_policyholder, exposure = exposure) %>%
-#'    construct_tariff_classes(.) %>%
 #'    autoplot(., show_observations = TRUE)
 #' }
 #'
 #' @author Martin Haringa
 #'
 #' @export
-autoplot.constructtariffclasses <- function(x, conf_int = FALSE, color_gam = "steelblue", show_observations = FALSE, color_splits = "grey50",
-                                            size_points = 1, color_points = "black", rotate_labels = FALSE,
-                                            remove_outliers = NULL){
+autoplot.fitgam <- function(x, conf_int = FALSE, color_gam = "steelblue", show_observations = FALSE,
+                            x_stepsize = NULL, size_points = 1, color_points = "black", rotate_labels = FALSE,
+                            remove_outliers = NULL){
+
 
   prediction <- x[[1]]
   xlab <- x[[2]]
   ylab <- x[[3]]
   points <- x[[4]]
-  gamcluster <- x[[6]]
 
   if(isTRUE(conf_int) & sum(prediction$upr_95 > 1e9) > 0){
     message("The confidence bounds are too large to show.")
@@ -52,9 +50,8 @@ autoplot.constructtariffclasses <- function(x, conf_int = FALSE, color_gam = "st
   gam_plot <- ggplot(data = prediction, aes(x = x, y = predicted)) +
     geom_line(color = color_gam) +
     theme_bw(base_size = 12) +
-    geom_vline(xintercept = gamcluster, color = color_splits, linetype = 2) +
     {if(isTRUE(conf_int) & sum(prediction$upr_95 > 1e9) == 0) geom_ribbon(aes(ymin = lwr_95, ymax = upr_95), alpha = 0.12)} +
-    scale_x_continuous(breaks = gamcluster) +
+    {if(is.numeric(x_stepsize)) scale_x_continuous(breaks = seq(floor(min(prediction$x)), ceiling(max(prediction$x)), by = x_stepsize))} +
     {if(isTRUE(show_observations) & ylab == "frequency") geom_point(data = points, aes(x = x, y = frequency), size = size_points, color = color_points)} +
     {if(isTRUE(show_observations) & ylab == "severity") geom_point(data = points, aes(x = x, y = avg_claimsize), size = size_points, color = color_points)} +
     {if(isTRUE(show_observations) & ylab == "burning") geom_point(data = points, aes(x = x, y = avg_premium), size = size_points, color = color_points)} +

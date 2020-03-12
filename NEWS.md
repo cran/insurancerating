@@ -1,3 +1,8 @@
+# insurancerating 0.5.0
+
+* Function construct_tariff_classes is now split in functions fit_gam and construct_tariff_classes.
+* A vignette is added on how to use the package
+
 # insurancerating 0.4.3
  
 * Function added to split rows with a time period longer than one month to multiple rows with a time period of exactly one month each.
