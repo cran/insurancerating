@@ -1,6 +1,6 @@
-6ec9fe1d97ec70e8e1a9c3ff85f0fd43 *DESCRIPTION
+3b93d165fb36d3b18b8007401e6d2f6a *DESCRIPTION
 89f00ac4fac7f8d18f1474eddaa9779a *NAMESPACE
-732a839b8e76e6746fb7a92f1d3c9fd2 *NEWS.md
+b5eb55dc99369693df032d9b6e57ad69 *NEWS.md
 0242667cf1b60db47c3fc7aef26d2f6e *R/MTPL.R
 5752de1835cc0bbb3b4897a07979fb3e *R/MTPL2.R
 903cd2de90f0be86a60581c02691f8c9 *R/construct_tariff_classes.R
@@ -24,14 +24,14 @@ df9aee7d6e63089103f5999830c2dc36 *R/univariate_5avgpremium_plot.R
 39c6b07d6a50a86acae76eb1506b090e *R/univariate_6exposure.R
 84e76b0f147c640bd28a52d9e128346d *R/univariate_6exposure_plot.R
 3242607e73d78fd7cbfac3080a4f095f *R/univariate_all.R
-d981cc01e420fd59f7c1e29d2b81cc2e *R/univariate_all_plot.R
+de160c51e3df37612f8b12f0fb4db1bc *R/univariate_all_plot.R
 693b5ee669cb40096b6d9c6cbfe5793d *R/zzz.R
 651f598e4704c289b5530a601a28e333 *build/vignette.rds
 6d1cbd4e2054635faec388685e03f7be *data/MTPL.rda
 cf588c5f777e84ecfe0128b80a7a2957 *data/MTPL2.rda
 36dee4986ce26c042e1b8940de3c9c8c *inst/doc/vignette.R
 eede31cd3bff14f6c1c715035011d86e *inst/doc/vignette.Rmd
-e0e8a055e7e08d668dee6e84a0500c05 *inst/doc/vignette.pdf
+b25ff736285986bb91a66f9e093950a9 *inst/doc/vignette.pdf
 f86baa9d2cd08cff9d9d90f05aac1ab5 *man/MTPL.Rd
 1601a844c208b75d0d700626d22dc020 *man/MTPL2.Rd
 e252ef000d7e23d343510e7a941440b7 *man/autoplot.constructtariffclasses.Rd

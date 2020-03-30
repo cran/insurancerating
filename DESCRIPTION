@@ -1,7 +1,7 @@
 Package: insurancerating
 Type: Package
 Title: Analytic Insurance Rating Techniques
-Version: 0.5.1
+Version: 0.5.2
 Authors@R: c(person("Martin", "Haringa", role = c("aut", "cre"), email = "mtharinga@gmail.com"))
 VignetteBuilder: knitr
 Maintainer: Martin Haringa <mtharinga@gmail.com>
@@ -22,7 +22,7 @@ Imports: classInt, data.table, dplyr, evtree, ggplot2, lubridate, mgcv,
 Depends: R (>= 3.3)
 Suggests: knitr, rmarkdown, scales, testthat
 NeedsCompilation: no
-Packaged: 2020-03-29 20:40:42 UTC; haringa
+Packaged: 2020-03-30 17:43:27 UTC; haringa
 Author: Martin Haringa [aut, cre]
 Repository: CRAN
-Date/Publication: 2020-03-29 21:00:02 UTC
+Date/Publication: 2020-03-30 22:30:02 UTC
