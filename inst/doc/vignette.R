@@ -8,8 +8,8 @@ knitr::opts_chunk$set(
 #  install.packages("insurancerating")
 
 ## ----gh-installation, eval = FALSE--------------------------------------------
-#  # install.packages("devtools")
-#  devtools::install_github("MHaringa/insurancerating")
+#  # install.packages("remotes")
+#  remotes::install_github("MHaringa/insurancerating")
 
 ## ----example, eval = TRUE, message = FALSE, warning = FALSE-------------------
 library(insurancerating)
@@ -61,8 +61,13 @@ glimpse(dat)
 
 
 
-## ----example3, eval = TRUE----------------------------------------------------
-model <- glm(nclaims ~ age_policyholder_freq_cat, offset = log(exposure), 
-             family = "poisson", data = dat)
-rating_factors(model)
+## ----example3, eval = TRUE, echo = TRUE---------------------------------------
+model_freq <- glm(nclaims ~ age_policyholder_freq_cat, offset = log(exposure), 
+                  family = "poisson", data = dat)
+
+model_sev <- glm(amount ~ age_policyholder_freq_cat, weights = nclaims, 
+                  family = Gamma(link = "log"), data = dat[dat$amount > 0, ])
+
+rating_factors(model_freq, model_sev, model_data = dat, exposure = exposure) %>%
+  autoplot()
 
