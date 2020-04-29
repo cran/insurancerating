@@ -1,15 +1,14 @@
-#' Univariate analysis for discrete risk factors
+#' Univariate analysis for discrete risk factors (deprecated function; use 'univariate()' instead)
 #'
 #'
 #' @description Univariate analysis for discrete risk factors in an insurance portfolio. The following summary statistics are calculated:
 #' \itemize{
-#'  \item{frequency (i.e. number of claims / expsore)}
+#'  \item{frequency (i.e. number of claims / exposure)}
 #'  \item{average severity (i.e. severity / number of claims)}
 #'  \item{risk premium (i.e. severity / exposure)}
 #'  \item{loss ratio (i.e. severity / premium)}
 #'  \item{average premium (i.e. premium / exposure)}
 #' }
-#' If input arguments are not specified, the summary statistics related to these arguments are ignored.
 #'
 #' @param df data.frame with insurance portfolio
 #' @param x column in \code{df} with risk factor

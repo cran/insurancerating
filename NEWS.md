@@ -1,3 +1,9 @@
+# insurancerating 0.6.1
+
+* `univariate_all()` and `autoplot.univ_all()` are now depreciated; use `univariate()` and `autoplot.univariate()` instead
+* `check_overdispersion()`, `check_normality()`, `model_performance()`, `bootstrap_rmse()`, and `add_prediction()` are added to test model quality and return performance metrics
+* `reduce()` is added to reduce an insurance portfolio by merging redundant date ranges
+
 # insurancerating 0.6.0
 
 * `label_width` in `autoplot()` is added to wrap long labels in multiple lines

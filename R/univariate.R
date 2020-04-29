@@ -2,7 +2,7 @@
 #'
 #' @description Univariate analysis for discrete risk factors in an insurance portfolio. The following summary statistics are calculated:
 #' \itemize{
-#'  \item{frequency (i.e. number of claims / expsore)}
+#'  \item{frequency (i.e. number of claims / exposure)}
 #'  \item{average severity (i.e. severity / number of claims)}
 #'  \item{risk premium (i.e. severity / exposure)}
 #'  \item{loss ratio (i.e. severity / premium)}
@@ -17,7 +17,7 @@
 #' @param exposure column in \code{df} with exposure (default is NULL)
 #' @param nclaims column in \code{df} with number of claims (default is NULL)
 #'
-#' @return An list of class \code{univ_all} with components
+#' @return A list of class \code{univ_all} with components
 #' \item{df}{data frame}
 #' \item{xvar}{name of column in df with risk factor}
 #' \item{severity}{name of column in df with severity}
@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' univariate(MTPL2, x = area, severity = amount, nclaims = nclaims,
-#'                  exposure = exposure, premium = premium)
+#'            exposure = exposure, premium = premium)
 #'
 #' # The summary statistics related to premium are not calculated
 #' univariate(MTPL2, x = area, severity = amount, nclaims = nclaims, exposure = exposure)

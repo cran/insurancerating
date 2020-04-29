@@ -9,17 +9,17 @@ rating_factors(..., model_data = NULL, exposure = NULL, exponentiate = TRUE)
 \arguments{
 \item{...}{glm object(s) produced by \code{glm()}}
 
-\item{model_data}{data.frame used to create glm object(s)}
+\item{model_data}{data.frame used to create glm object(s), this should only be specified in case the exposure is desired in the output, default value is NULL}
 
-\item{exposure}{column in \code{model_data} with exposure}
+\item{exposure}{column in \code{model_data} with exposure, default value is NULL}
 
-\item{exponentiate}{Logical indicating whether or not to exponentiate the the coefficient estimates. Defaults to TRUE.}
+\item{exponentiate}{logical indicating whether or not to exponentiate the the coefficient estimates. Defaults to TRUE.}
 }
 \value{
 data.frame
 }
 \description{
-This extracts coefficients in terms of the original levels of the coefficients rather than the coded variables.
+Extract coefficients in terms of the original levels of the coefficients rather than the coded variables.
 }
 \details{
 A fitted linear model has coefficients for the contrasts of the factor terms, usually one less in number than the number of levels.
