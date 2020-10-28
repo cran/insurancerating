@@ -19,7 +19,8 @@
 #' ratio of the claim amount and the number of claims. The number of claims is included as a weight.
 #'
 #' The 'burning' specification uses a lognormal GAM for fitting the pure premium of a claim. The pure premium is obtained by multiplying the estimated frequency and
-#' the estimated severity of claims. The word burning cost is used here as equivalent of risk premium and pure premium.
+#' the estimated severity of claims. The word burning cost is used here as equivalent of risk premium and pure premium. Note that the functionality for fitting
+#' a GAM for pure premium is still experimental (in the early stages of development).
 #'
 #' @import mgcv
 #' @import ggplot2
@@ -31,6 +32,7 @@
 #' @importFrom stats aggregate
 #' @importFrom stats predict
 #' @importFrom stats setNames
+#' @importFrom stats qnorm
 #'
 #' @references Antonio, K. and Valdez, E. A. (2012). Statistical concepts of a priori and a posteriori risk classification in insurance.
 #' Advances in Statistical Analysis, 96(2):187–224. doi:10.1007/s10182-011-0152-7.
@@ -164,7 +166,8 @@ fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NU
                          pure_premium = data[[pure_premium]])
 
         df <- aggregate(list(exposure = df$exposure,
-                             pure_premium = df$pure_premium),
+                             pure_premium = df$pure_premium,
+                             weighted_premium = df$exposure * df$pure_premium),
                         by = list(x = df$x),
                         FUN = sum,
                         na.rm = TRUE,
@@ -172,7 +175,8 @@ fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NU
 
         df <- subset(df, pure_premium > 0 & exposure > 0)
 
-        df$avg_premium <- df$pure_premium / df$exposure
+        # Solve issue 2: df$avg_premium <- df$pure_premium / df$exposure
+        df$avg_premium <- df$weighted_premium / df$exposure
 
         df
       },
@@ -202,8 +206,8 @@ fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NU
 
   out <- data.frame(x = gam0[[1]]$x,
                     predicted = exp(gam0[[1]]$fit + mean(predict(gam_x))),
-                    lwr_95 = exp(gam0[[1]]$fit - 1.96 * gam0[[1]]$se + mean(predict(gam_x))),
-                    upr_95 = exp(gam0[[1]]$fit + 1.96 * gam0[[1]]$se + mean(predict(gam_x))))
+                    lwr_95 = exp(gam0[[1]]$fit - qnorm(.975) * gam0[[1]]$se + mean(predict(gam_x))),
+                    upr_95 = exp(gam0[[1]]$fit + qnorm(.975) * gam0[[1]]$se + mean(predict(gam_x))))
 
   name <- gam0[[1]]$xlab
   counting <- sort(gam0[[1]]$raw)
