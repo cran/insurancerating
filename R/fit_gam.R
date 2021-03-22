@@ -4,13 +4,13 @@
 #' (claim frequency), the severity of reported claims (claim severity) or the burning cost (i.e. risk premium or pure premium).
 #'
 #' @param data data.frame of an insurance portfolio
-#' @param nclaims column in \code{data} with number of claims
-#' @param x column in \code{data} with continuous risk factor
-#' @param exposure column in \code{data} with exposure
-#' @param amount column in \code{data} with claim amount
-#' @param pure_premium column in \code{data} with pure premium
+#' @param nclaims column in `data` with number of claims
+#' @param x column in `data` with continuous risk factor
+#' @param exposure column in `data` with exposure
+#' @param amount column in `data` with claim amount
+#' @param pure_premium column in `data` with pure premium
 #' @param model choose either 'frequency', 'severity' or 'burning' (model = 'frequency' is default). See details section.
-#' @param round_x round elements in column \code{x} to multiple of \code{round_x}. This gives a speed enhancement for data containing many levels for \code{x}.
+#' @param round_x round elements in column `x` to multiple of `round_x`. This gives a speed enhancement for data containing many levels for `x`.
 #'
 #' @details The 'frequency' specification uses a Poisson GAM for fitting the number of claims. The logarithm of the exposure is included
 #' as an offset, such that the expected number of claims is proportional to the exposure.
@@ -58,10 +58,10 @@
 fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NULL, model = "frequency", round_x = NULL){
 
   if (nrow(data) < 10)
-    stop("At least 10 datapoints are required. The spline smoothers assume a default of 10 degrees of freedom.")
+    stop("At least 10 datapoints are required. The spline smoothers assume a default of 10 degrees of freedom.", call. = FALSE)
 
   if (!model %in% c("frequency", "severity", "burning"))
-    stop("Choose correct model specification: 'frequency', 'severity' or 'burning'.")
+    stop("Choose correct model specification: 'frequency', 'severity' or 'burning'.", call. = FALSE)
 
   nclaims <- deparse(substitute(nclaims))
   x <- deparse(substitute(x))
@@ -70,11 +70,11 @@ fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NU
   pure_premium <- deparse(substitute(pure_premium))
 
   if ( !is.numeric(data[[x]]) ) {
-    stop( "x should be numeric" )
+    stop( "x should be numeric", call. = FALSE)
   }
 
   if ( !is.numeric(data[[exposure]]) ) {
-    stop( "exposure should be numeric" )
+    stop( "exposure should be numeric", call. = FALSE)
   }
 
 
@@ -106,7 +106,7 @@ fit_gam <- function(data, nclaims, x, exposure, amount = NULL, pure_premium = NU
 
 
     if( sum(df$exposure == 0) > 0 )
-      stop("Exposures should be greater than zero.")
+      stop("Exposures should be greater than zero.", call. = FALSE)
 
     # Poisson GAM
     gam_x <- mgcv::gam(nclaims ~ s(x),
@@ -239,10 +239,10 @@ as.data.frame.fitgam <- function(x, ...) {
 
 #' Automatically create a ggplot for objects obtained from fit_gam()
 #'
-#' @description Takes an object produced by \code{fit_gam()}, and plots the fitted GAM.
+#' @description Takes an object produced by `fit_gam()`, and plots the fitted GAM.
 #'
-#' @param object fitgam object produced by \code{fit_gam()}
-#' @param conf_int determines whether 95\% confidence intervals will be plotted. The default is \code{conf_int = FALSE}
+#' @param object fitgam object produced by `fit_gam()`
+#' @param conf_int determines whether 95 percent confidence intervals will be plotted. The default is `conf_int = FALSE`.
 #' @param color_gam a color can be specified either by name (e.g.: "red") or by hexadecimal code (e.g. : "#FF1234") (default is "steelblue")
 #' @param x_stepsize set step size for labels horizontal axis
 #' @param show_observations add observed frequency/severity points for each level of the variable for which tariff classes are constructed
@@ -276,7 +276,7 @@ autoplot.fitgam <- function(object, conf_int = FALSE, color_gam = "steelblue", s
   }
 
   if (!inherits(object, "fitgam")) {
-    stop("autoplot.fitgam requires a fitgam object, use object = object")
+    stop("autoplot.fitgam requires a fitgam object, use object = object", call. = FALSE)
   }
 
   prediction <- object[[1]]

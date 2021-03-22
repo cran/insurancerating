@@ -11,7 +11,8 @@
   labels = TRUE,
   dec.mark = ",",
   ylab = "rate",
-  color_bg = "#E7B800",
+  fill = NULL,
+  color = NULL,
   linetype = FALSE,
   ...
 )
@@ -19,17 +20,21 @@
 \arguments{
 \item{object}{riskfactor object produced by \code{rating_factors()}}
 
-\item{risk_factors}{character vector to define which factors are included. Defaults to all risk factors.}
+\item{risk_factors}{character vector to define which factors are included.
+Defaults to all risk factors.}
 
 \item{ncol}{number of columns in output (default is 1)}
 
 \item{labels}{show labels with the exposure (default is TRUE)}
 
-\item{dec.mark}{control the format of the decimal point, as well as the mark between intervals before the decimal point, choose either "," (default) or "."}
+\item{dec.mark}{control the format of the decimal point, as well as the mark
+between intervals before the decimal point, choose either "," (default) or "."}
 
 \item{ylab}{modify label for the y-axis}
 
-\item{color_bg}{change the color of the histogram ("#E7B800" is default)}
+\item{fill}{color to fill histogram}
+
+\item{color}{color to plot line colors of histogram (default is "skyblue")}
 
 \item{linetype}{use different linetypes (default is FALSE)}
 
@@ -39,7 +44,8 @@
 a ggplot2 object
 }
 \description{
-Takes an object produced by \code{univariate()}, and plots the available input.
+Takes an object produced by \code{univariate()}, and plots the
+available input.
 }
 \examples{
 library(dplyr)

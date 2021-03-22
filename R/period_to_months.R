@@ -4,11 +4,11 @@
 #' Values in numeric columns (e.g. exposure or premium) are divided over the months proportionately.
 #'
 #' @param df data.frame
-#' @param begin column in \code{df} with begin dates
-#' @param end column in \code{df} with end dates
-#' @param ... numeric columns in \code{df} to split
+#' @param begin column in `df` with begin dates
+#' @param end column in `df` with end dates
+#' @param ... numeric columns in `df` to split
 #'
-#' @return data.frame with same columns as in \code{df}, and one extra column called \code{id}
+#' @return data.frame with same columns as in `df`, and one extra column called `id`
 #'
 #' @author Martin Haringa
 #'
@@ -42,11 +42,11 @@ period_to_months <- function (df, begin, end, ...) {
   column_names <- names(df)
 
   if (!lubridate::is.Date(df[[begin00]]) | !lubridate::is.Date(df[[end00]])) {
-    stop("Columns begin and end should be Date objects. Use e.g. lubridate::ymd() to create Date object.")
+    stop("Columns begin and end should be Date objects. Use e.g. lubridate::ymd() to create Date object.", call. = FALSE)
   }
 
   if (length(cols) > 0 & !all(cols %in% column_names)){
-    stop("Numeric column names to split not found in ", df00)
+    stop("Numeric column names to split not found in ", df00, call. = FALSE)
   }
 
   # Create look up table
