@@ -1,7 +1,7 @@
 Package: insurancerating
 Type: Package
 Title: Analytic Insurance Rating Techniques
-Version: 0.6.5
+Version: 0.6.6
 Authors@R: c(person("Martin", "Haringa", role = c("aut", "cre"), email = "mtharinga@gmail.com"))
 Maintainer: Martin Haringa <mtharinga@gmail.com>
 Description: Methods for insurance rating. It helps actuaries to implement GLMs within all relevant steps needed to construct
@@ -22,7 +22,7 @@ Depends: R (>= 3.3)
 Suggests: spelling, knitr, rmarkdown, testthat
 Language: en-US
 NeedsCompilation: no
-Packaged: 2021-03-22 14:50:06 UTC; martin
+Packaged: 2021-05-19 13:17:12 UTC; martin
 Author: Martin Haringa [aut, cre]
 Repository: CRAN
-Date/Publication: 2021-03-22 20:00:02 UTC
+Date/Publication: 2021-05-19 13:30:02 UTC
