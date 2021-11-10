@@ -9,7 +9,8 @@ rating_factors(
   model_data = NULL,
   exposure = NULL,
   exponentiate = TRUE,
-  signif_stars = TRUE
+  signif_stars = TRUE,
+  round_exposure = 0
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ be specified in case the exposure is desired in the output, default value is NUL
 coefficient estimates. Defaults to TRUE.}
 
 \item{signif_stars}{show significance stars for p-values (defaults to TRUE)}
+
+\item{round_exposure}{number of digits for exposure (defaults to 0)}
 }
 \value{
 data.frame
@@ -41,8 +44,8 @@ function is adopted from dummy.coef(). Our adoption prints a data.frame as outpu
 \examples{
 library(dplyr)
 df <- MTPL2 \%>\%
-    mutate_at(vars(area), as.factor) \%>\%
-    mutate_at(vars(area), ~biggest_reference(., exposure))
+  mutate(across(c(area), as.factor)) \%>\%
+  mutate(across(c(area), ~biggest_reference(., exposure)))
 
 mod1 <- glm(nclaims ~ area + premium, offset = log(exposure), family = poisson(), data = df)
 mod2 <- glm(nclaims ~ area, offset = log(exposure), family = poisson(), data = df)

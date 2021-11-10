@@ -13,6 +13,9 @@
 #' @param colname the name of the output column, default value is "estimate"
 #' @param exponentiate logical indicating whether or not to exponentiate
 #'   the coefficient estimates. Defaults to TRUE.
+#' @param round_exposure number of digits for exposure (default to 0)
+#'
+#' @author Martin Haringa
 #'
 #' @importFrom data.table data.table
 #' @importFrom dplyr full_join
@@ -28,7 +31,8 @@
 #'
 #' @export
 rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
-                            colname = "estimate", exponentiate = TRUE){
+                            colname = "estimate", exponentiate = TRUE,
+                            round_exposure = 0){
 
   xl <- model$xlevels
   model_nm <- deparse(substitute(model))
@@ -39,10 +43,6 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
 
   if( !inherits(model, c("glm", "refitsmooth", "refitrestricted")) ) {
     stop("Input must be of class glm.", call. = FALSE)
-  }
-
-  if(!length(xl)){ # no factors in model
-    warning(paste0("No factors detected in model"), call. = FALSE)
   }
 
   if (inherits(model, "refitsmooth")){
@@ -70,6 +70,14 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
     xl_df$values <- as.character(xl_df$values)
     xl_df$ind_values <- paste0(xl_df$ind, xl_df$values)
   }
+
+  if ( is.null(xl) ){
+    xl_df <- data.frame(ind = character(),
+                        values = character(),
+                        ind_values = character(),
+                        stringsAsFactors = FALSE)
+  }
+
 
   if (inherits(model, "refitsmooth")) {
 
@@ -196,6 +204,7 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
   row.names(uit) <- NULL
   if ( !is.null( model_data ) & exposure != "NULL" & length( xl_names_in ) > 0){
     uit <- uit[, c("risk_factor", "level", "values", exposure, "pvalues")]
+    uit[[exposure]] <- round(uit[[exposure]], round_exposure)
   } else {
     uit <- uit[, c("risk_factor", "level", "values", "pvalues")]
   }
@@ -218,6 +227,7 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
 #' @param exponentiate logical indicating whether or not to exponentiate the
 #'   coefficient estimates. Defaults to TRUE.
 #' @param signif_stars show significance stars for p-values (defaults to TRUE)
+#' @param round_exposure number of digits for exposure (defaults to 0)
 #'
 #' @details A fitted linear model has coefficients for the contrasts of the
 #'   factor terms, usually one less in number than the number of levels. This
@@ -235,8 +245,8 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
 #' @examples
 #' library(dplyr)
 #' df <- MTPL2 %>%
-#'     mutate_at(vars(area), as.factor) %>%
-#'     mutate_at(vars(area), ~biggest_reference(., exposure))
+#'   mutate(across(c(area), as.factor)) %>%
+#'   mutate(across(c(area), ~biggest_reference(., exposure)))
 #'
 #' mod1 <- glm(nclaims ~ area + premium, offset = log(exposure), family = poisson(), data = df)
 #' mod2 <- glm(nclaims ~ area, offset = log(exposure), family = poisson(), data = df)
@@ -245,7 +255,8 @@ rating_factors1 <- function(model, model_data = NULL, exposure = NULL,
 #'
 #' @export
 rating_factors <- function(..., model_data = NULL, exposure = NULL,
-                           exponentiate = TRUE, signif_stars = TRUE){
+                           exponentiate = TRUE, signif_stars = TRUE,
+                           round_exposure = 0){
 
   model_data_nm <- deparse(substitute(model_data))
   exposure_nm <- deparse(substitute(exposure))
@@ -257,7 +268,8 @@ rating_factors <- function(..., model_data = NULL, exposure = NULL,
   for (i in 1:length(cols)){
     df <- eval.parent(substitute(rating_factors1(eval(parse( text = cols[i])),
                                                  model_data, exposure,
-                                                 exponentiate = exponentiate)))
+                                                 exponentiate = exponentiate,
+                                                 round_exposure = round_exposure)))
     names(df)[names(df) == "estimate"] <- paste0("est_", cols[i])
     names(df)[names(df) == "pvalues"] <- paste0("signif_", cols[i])
     rf_list[[paste0("m_", i)]] <- df
@@ -365,6 +377,8 @@ as.data.frame.riskfactor <- function(x, ...) {
 #' @param linetype use different linetypes (default is FALSE)
 #' @param ... other plotting parameters to affect the plot
 #'
+#' @author Martin Haringa
+#'
 #' @return a ggplot2 object
 #' @export
 #'
@@ -376,8 +390,8 @@ as.data.frame.riskfactor <- function(x, ...) {
 #' @examples
 #' library(dplyr)
 #' df <- MTPL2 %>%
-#'     mutate_at(vars(area), as.factor) %>%
-#'     mutate_at(vars(area), ~biggest_reference(., exposure))
+#'   mutate(across(c(area), as.factor)) %>%
+#'   mutate(across(c(area), ~biggest_reference(., exposure)))
 #'
 #' mod1 <- glm(nclaims ~ area + premium, offset = log(exposure), family = poisson(), data = df)
 #' mod2 <- glm(nclaims ~ area, offset = log(exposure), family = poisson(), data = df)

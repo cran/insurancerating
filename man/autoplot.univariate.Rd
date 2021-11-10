@@ -17,6 +17,9 @@
   color_bg = "lightskyblue",
   label_width = 10,
   coord_flip = FALSE,
+  show_total = FALSE,
+  total_color = NULL,
+  total_name = NULL,
   ...
 )
 }
@@ -46,7 +49,7 @@
 
 \item{sort_manual}{sort (or order) risk factor into own ordering; should be a character vector (default is NULL)}
 
-\item{dec.mark}{control the format of the decimal point, as well as the mark between intervals before the decimal point, choose either "," (default) or "."}
+\item{dec.mark}{decimal mark; defaults to ","}
 
 \item{color}{change the color of the points and line ("dodgerblue" is default)}
 
@@ -55,6 +58,12 @@
 \item{label_width}{width of labels on the x-axis (10 is default)}
 
 \item{coord_flip}{flip cartesian coordinates so that horizontal becomes vertical, and vertical, horizontal (default is FALSE)}
+
+\item{show_total}{show line for total if by is used in univariate (default is FALSE)}
+
+\item{total_color}{change the color for the total line ("black" is default)}
+
+\item{total_name}{add legend name for the total line (e.g. "total")}
 
 \item{...}{other plotting parameters to affect the plot}
 }
@@ -75,4 +84,7 @@ xzip <- univariate(MTPL, x = bm, severity = amount, nclaims = nclaims,
 exposure = exposure, by = zip)
 autoplot(xzip, show_plots = 1:2)
 
+}
+\author{
+Marc Haine, Martin Haringa
 }
