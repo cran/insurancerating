@@ -23,15 +23,16 @@ Object of class smooth
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 Apply smoothing on the risk factors used in the model. \code{smooth_coef()}
-must always be followed by \code{refit_glm()}.
+must always be followed by \code{update_glm()}.
 }
 \details{
 Although smoothing could be applied either to the frequency or
 the severity model, it is more appropriate to impose the smoothing
 on the premium model. This can be achieved by calculating the pure
 premium for each record (i.e. expected number of claims times the expected
-claim amount), then fitting an "unrestricted" Gamma GLM to the pure premium,
-and then imposing the restrictions in a final "restricted" Gamma GLM.
+claim amount), then fitting an "unrestricted" Gamma GLM to the pure
+premium, and then imposing the restrictions in a final "restricted"
+Gamma GLM.
 }
 \examples{
 \dontrun{
@@ -54,10 +55,10 @@ dat <- MTPL \%>\%
   mutate(across(where(is.factor), ~biggest_reference(., exposure)))
 
 # Fit frequency and severity model
-freq <- glm(nclaims ~ bm + age_policyholder_freq_cat, offset = log(exposure), family = poisson(),
-            data = dat)
-sev <- glm(amount ~ bm + zip, weights = nclaims, family = Gamma(link = "log"),
-           data = dat \%>\% filter(amount > 0))
+freq <- glm(nclaims ~ bm + age_policyholder_freq_cat, offset = log(exposure),
+ family = poisson(), data = dat)
+sev <- glm(amount ~ bm + zip, weights = nclaims,
+ family = Gamma(link = "log"), data = dat \%>\% filter(amount > 0))
 
 # Add predictions for freq and sev to data, and calculate premium
 premium_df <- dat \%>\%
@@ -82,7 +83,7 @@ burn_restricted <- burn_unrestricted \%>\%
   smooth_coef(x_cut = "age_policyholder_freq_cat",
               x_org = "age_policyholder",
               breaks = seq(18, 95, 5)) \%>\%
-  refit_glm()
+  update_glm()
 
 # Show new rating factors
 rating_factors(burn_restricted)
@@ -90,13 +91,14 @@ rating_factors(burn_restricted)
 
 }
 \seealso{
-\code{\link[=refit_glm]{refit_glm()}} for refitting the smoothed model, and \code{\link[=autoplot.smooth]{autoplot.smooth()}}.
+\code{\link[=update_glm]{update_glm()}} for refitting the smoothed model,
+and \code{\link[=autoplot.smooth]{autoplot.smooth()}}.
 
-Other refit_glm: 
+Other update_glm: 
 \code{\link{restrict_coef}()}
 }
 \author{
 Martin Haringa
 }
 \concept{autoplot.smooth}
-\concept{refit_glm}
+\concept{update_glm}
