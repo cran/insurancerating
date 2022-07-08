@@ -1,3 +1,8 @@
+# insurancerating 0.7.0
+
+* `smooth_coef()` now gives correct results for intervals with scientific notation
+* `reduce()` now returns no errors anymore for columns with dates in POSIXt format
+
 # insurancerating 0.6.9
 
 * `refit_glm()` is renamed to `update_glm()`
