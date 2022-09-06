@@ -1,7 +1,7 @@
 Package: insurancerating
 Type: Package
 Title: Analytic Insurance Rating Techniques
-Version: 0.7.0
+Version: 0.7.1
 Authors@R: c(person("Martin", "Haringa", role = c("aut", "cre"), email = "mtharinga@gmail.com"))
 Maintainer: Martin Haringa <mtharinga@gmail.com>
 BugReports: https://github.com/mharinga/insurancerating/issues
@@ -23,7 +23,7 @@ Depends: R (>= 3.3)
 Suggests: spelling, knitr, rmarkdown, testthat
 Language: en-US
 NeedsCompilation: no
-Packaged: 2022-07-08 09:01:54 UTC; martin
+Packaged: 2022-09-06 07:19:30 UTC; martin
 Author: Martin Haringa [aut, cre]
 Repository: CRAN
-Date/Publication: 2022-07-08 09:20:02 UTC
+Date/Publication: 2022-09-06 11:40:09 UTC
