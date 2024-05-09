@@ -40,10 +40,10 @@ rmse <- function(object, data) {
 #' @param ... One or more objects of class `glm`.
 #'
 #' @details The following indices are computed:
-#' \itemize{
-#'   \item{**AIC**} {Akaike's Information Criterion, see [stats::AIC()]}
-#'   \item{**BIC**} {Bayesian Information Criterion, see [stats::BIC()]}
-#'   \item{**RMSE**} {Root mean squared error, [rmse()]}
+#' \describe{
+#'   \item{AIC}{Akaike's Information Criterion}
+#'   \item{BIC}{Bayesian Information Criterion}
+#'   \item{RMSE}{Root mean squared error}
 #' }
 #'
 #' @importFrom stats AIC
@@ -63,7 +63,7 @@ rmse <- function(object, data) {
 #' model_performance(m1, m2)
 #'
 #' @export
-model_performance <- function(...){
+model_performance <- function(...) {
 
   objects <- list(...)
   object_names <- match.call(expand.dots = FALSE)$`...`
@@ -91,21 +91,16 @@ model_performance <- function(...){
 
 
 #' @importFrom insight export_table
-#' @importFrom insight print_color
 #' @export
 print.model_performance <- function(x, digits = 3, ...) {
   orig_x <- x
-  insight::print_color("# Comparison of Model Performance Indices\n\n", "blue")
-
-  x[] <- lapply(x, function(i) { if (is.numeric(i)) {
-    round(i, digits = digits) } else { i } })
+  cat(color_blue("# Comparison of Model Performance Indices\n\n"))
+  x[] <- lapply(x, function(i) {
+    if (is.numeric(i)) {
+      round(i, digits = digits) } else {
+        i
+      }
+  })
   cat(insight::export_table(x))
   invisible(orig_x)
 }
-
-
-
-
-
-
-

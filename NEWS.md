@@ -1,3 +1,9 @@
+# insurancerating 0.7.3
+
+* `autoplot.univariate()` now generates a plot even when there are missing values in the rows
+* `rating_factors()` now always returns the correct coefficients when used
+on a 'refitsmooth' or 'refitrestricted' class of GLM. 
+
 # insurancerating 0.7.2
 
 * `update_glm()` now always returns the correct interval in case the function is used in combination with `smooth_coef()`
