@@ -159,10 +159,12 @@ cut_borders_model <- function(model, x_cut) {
 
 #' @noRd
 #'
+#' @importFrom scam scam
 #' @importFrom stats lm
 #'
 #' @keywords internal
-fit_polynomial <- function(borders_model, x_org, degree = NULL, breaks = NULL) {
+fit_polynomial <- function(borders_model, x_org, degree = NULL, breaks = NULL,
+                           smoothing = "spline", k = NULL, weights) {
 
   if (is.null(breaks)) {
     breaks <- seq(min(borders_model$start_), max(borders_model$end_),
@@ -179,7 +181,40 @@ fit_polynomial <- function(borders_model, x_org, degree = NULL, breaks = NULL) {
   levels_borders <- levels(cut(breaks_min, breaks = unique_borders,
                                include.lowest = TRUE, dig.lab = 9))
 
-  lm_poly <- lm(estimate ~ poly(avg_, degree = degree), data = borders_model)
+  if (!smoothing %in% c("spline", "mpi", "mpd", "gam", "cx", "cv", "micx",
+                        "micv", "mdcx", "mdcv"))
+    stop("Choose correct smoothing specification: 'spline', 'mpi', 'mpd',
+         'gam', 'cx', 'cv', 'micx', 'micv', 'mdcx', 'mdcv'.", call. = FALSE)
+
+  if (smoothing == "spline") {
+    lm_poly <- lm(estimate ~ poly(avg_, degree = degree), data = borders_model)
+  }
+
+  if (smoothing %in% c("mpd", "mpi", "cx", "cv", "micx",
+                       "micv", "mdcx", "mdcv")) {  ## monotonic decreasing constraint
+    if (is.null(k)) {
+      lm_poly <- scam::scam(estimate ~ s(avg_, bs = smoothing),
+                            weights = weights,
+                            data = borders_model)
+    } else {
+      lm_poly <- scam::scam(estimate ~ s(avg_, k = k, bs = smoothing),
+                            weights = weights,
+                            data = borders_model)
+    }
+  }
+
+  if (smoothing == "gam") {  ## gam with no constraint
+    if (is.null(k)) {
+      lm_poly <- mgcv::gam(estimate ~ s(avg_),
+                           weights = weights,
+                           data = borders_model)
+    } else {
+      lm_poly <- mgcv::gam(estimate ~ s(avg_, k = k),
+                           weights = weights,
+                           data = borders_model)
+    }
+  }
+
   new_poly_df <- data.frame(avg_ = breaks_mid)
   poly_line <- data.frame(avg_ = breaks)
   poly_line$yhat <- as.numeric(predict(lm_poly, poly_line))

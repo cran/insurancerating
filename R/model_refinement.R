@@ -164,6 +164,25 @@ restrict_coef <- function(model, restrictions) {
 #' @param x_org column name where x_cut is based on
 #' @param degree order of polynomial
 #' @param breaks numerical vector with new clusters for x
+#' @param smoothing choose smoothing specification (all the shape
+#' constrained smooth terms (SCOP-splines) are constructed using the B-splines
+#' basis proposed by Eilers and Marx (1996) with a discrete penalty on the basis
+#' coefficients:
+#'  \itemize{
+#'   \item{'spline' (default)}
+#'   \item{'mpi': monotone increasing SCOP-splines}
+#'   \item{'mpd': monotone decreasing SCOP-splines}
+#'   \item{'cx': convex SCOP-splines}
+#'   \item{'cv': concave SCOP-splines}
+#'   \item{'micx': increasing and convex SCOP-splines}
+#'   \item{'micv': increasing and concave SCOP-splines}
+#'   \item{'mdcx': decreasing and convex SCOP-splines}
+#'   \item{'mdcv': decreasing and concave SCOP-splines}
+#'   \item{'gam': spline based smooth (thin plate regression spline)}
+#' }
+#' @param k number of basis functions be computed
+#' @param weights weights used for smoothing, must be equal to the exposure
+#' (defaults to NULL)
 #'
 #' @family update_glm
 #' @family autoplot.smooth
@@ -228,7 +247,8 @@ restrict_coef <- function(model, restrictions) {
 #' }
 #'
 #' @export
-smooth_coef <- function(model, x_cut, x_org, degree = NULL, breaks = NULL) {
+smooth_coef <- function(model, x_cut, x_org, degree = NULL, breaks = NULL,
+                        smoothing = "spline", k = NULL, weights = NULL) {
 
   if (is.null(breaks) || !is.numeric(breaks)) {
     stop("'breaks' must be a numerical vector", call. = FALSE)
@@ -282,7 +302,27 @@ smooth_coef <- function(model, x_cut, x_org, degree = NULL, breaks = NULL) {
     degree <- nrow(borders_x_cut) - 1
   }
 
-  fit_poly <- fit_polynomial(borders_x_cut, x_org, degree, breaks)
+  if (smoothing %in% c("mpi", "mpd", "cx", "cv", "micx", "micv", "mdcx",
+                       "mdcv", "gam")) {
+    if (is.null(weights)) {
+      exposur0 <- rep(1, nrow(borders_x_cut))
+    } else if (!weights %in% colnames(df_new)) {
+      stop("weights column: ", deparse(substitute(weights)),
+           " is not in the model data. Specify column with exposure.",
+           call. = FALSE)
+    } else {
+      exposur0 <- aggregate(list(exposure = df_new[[weights]]),
+                            by = list(x = df_new[[x_cut]]),
+                            FUN = sum,
+                            na.rm = TRUE,
+                            na.action = NULL)[,2]
+    }
+  } else {
+    exposur0 <- NULL
+  }
+
+  fit_poly <- fit_polynomial(borders_x_cut, x_org, degree, breaks, smoothing,
+                             k, exposur0)
   df_poly <- fit_poly[["new_poly_df"]]
   df_poly_line <- fit_poly[["poly_line"]]
   df_new_rf <- fit_poly[["new_rf"]]
@@ -307,7 +347,7 @@ smooth_coef <- function(model, x_cut, x_org, degree = NULL, breaks = NULL) {
              new = df_poly,
              new_line = df_poly_line,
              model_call = model_call,
-             rating_factors = rfdf,
+             rating_factors = as.data.frame(rfdf),
              restrictions_lst = rst_lst,
              new_rf = df_new_rf,
              degree = degree,
@@ -315,7 +355,8 @@ smooth_coef <- function(model, x_cut, x_org, degree = NULL, breaks = NULL) {
              new_col_nm = new_col_nm,
              old_col_nm = old_col_nm,
              mgd_rst = mgd_rst,
-             mgd_smt = mgd_smt)
+             mgd_smt = mgd_smt,
+             smoothing = smoothing)
   attr(st, "class") <- "smooth"
   invisible(st)
 }
@@ -446,7 +487,12 @@ autoplot.smooth <- function(object, ...) {
   new <- object$new
   new_line <- object$new_line
   degree <- scales::ordinal(object$degree)
-  degree_name <- paste0(degree, " order polynomial")
+  smoothing <- object$smoothing
+  if (smoothing == "spline") {
+    degree_name <- paste0(degree, " order polynomial")
+  } else {
+    degree_name <- toupper(smoothing)
+  }
 
   rf2_start_open <- rf2[rf2$start_oc == "open", ]
   rf2_start_closed <- rf2[rf2$start_oc == "closed", ]
@@ -515,25 +561,78 @@ autoplot.smooth <- function(object, ...) {
 #'  preceded by `restrict_coef()`.
 #'
 #' @param x Object of class restricted or of class smooth
+#' @param intercept_only Logical. Default is \code{FALSE}. If \code{TRUE}, only
+#' the intercept is updated, ensuring that the changes have no impact on the
+#' other variables.
 #'
 #' @author Martin Haringa
 #'
 #' @importFrom stats glm
+#' @importFrom stats terms.formula
 #' @importFrom utils modifyList
 #'
 #' @return Object of class GLM
 #'
 #' @export
-update_glm <- function(x) {
+update_glm <- function(x, intercept_only = FALSE) {
 
   if (!inherits(x, c("restricted", "smooth"))) {
-    stop("Input must be of class restricted or of class smooth", call. = FALSE)
+    stop("Input must be of class 'restricted' or 'smooth'.", call. = FALSE)
+  }
+
+  if (isTRUE(intercept_only)) {
+    andere <- attr(stats::terms.formula(x$formula_removed), "term.labels")
+    if (length(andere) > 0) {
+      tot_rf <- x$rating_factors
+      df <- tot_rf[tot_rf$risk_factor %in% andere,]
+      rf_mult <- names(table(df$risk_factor)[table(df$risk_factor) > 1])
+      rf_single <- names(table(df$risk_factor)[table(df$risk_factor) == 1])
+      if (length(rf_mult) > 0) {
+        df1 <- df[df$risk_factor %in% rf_mult,]
+        mult_lst <- split(df1, df1$risk_factor)
+
+        for (i in seq_along(mult_lst)) {
+          risk_factor_name <- unique(mult_lst[[i]]$risk_factor)
+          names(mult_lst[[i]])[names(mult_lst[[i]]) == "level"] <- risk_factor_name
+          names(mult_lst[[i]])[names(mult_lst[[i]]) == "estimate"] <- paste0(
+            risk_factor_name, "_rst99"
+          )
+          mult_lst[[i]]$risk_factor <- NULL
+          x <- restrict_coef(x, mult_lst[[i]])
+        }
+      }
+
+      if (length(rf_single) > 0) {
+
+        df2 <- df[df$risk_factor %in% rf_single]
+        sng_lst <- split(df2, df2$risk_factor)
+
+        for (i in seq_along(sng_lst)) {
+          formula_removed <- x$formula_removed
+          rf_name <- unique(sng_lst[[i]]$risk_factor)
+          rf_est <- unique(sng_lst[[i]]$estimate)
+          formula_removed <- update(formula_removed, paste("~ . -", rf_name))
+          add_offset <- paste0(rf_name, " * log(", rf_est, ")")
+          newoffset <- paste0(x$offset, " + ", add_offset)
+          newoffsetterm <- paste0("offset(", newoffset, ")")
+          formula_restricted <- update(formula_removed, paste("~ . + ",
+                                                           newoffsetterm))
+          x$offset <- newoffset
+          x$formula_restricted <- formula_restricted
+          x$formula_removed <- formula_removed
+        }
+      }
+    }
   }
 
   lst_call <- as.list(x$model_call)
-  lst <- list(formula = x$formula_restricted, data = x$data_restricted,
-              offset = NULL)
+
+  lst <- list(formula = x$formula_restricted,
+              data = x$data_restricted,
+              offset = NULL) # offset is already in formula with +
+
   y <- eval(as.call(modifyList(lst_call, lst)))
+
   y$call$formula <- lst$formula
   y$call$data <- quote(df_new)
 

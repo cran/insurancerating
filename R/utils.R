@@ -62,7 +62,7 @@ biggest_reference <- function(x, weight) {
 #' of the American Statistical Association, 53, pp. 789–798.
 #' doi: 10.1080/01621459.1958.10501479.
 #'
-#' @export fisher
+#' @export
 fisher <- function(vec, n = 7, diglab = 2) {
   cluster <- classInt::classIntervals(vec, n = n, style = "fisher",
                                       intervalClosure = "right")[[2]]
@@ -177,9 +177,8 @@ separation_mark <- function(dec.mark) {
   }
 }
 
-
 #' @keywords internal
-sort_x_axis <- function(sort_manual, label_width) { # hist_sort
+sort_x_axis <- function(sort_manual, label_width) {
   if (!is.null(sort_manual)) {
     list(
       ggplot2::scale_x_discrete(
@@ -195,6 +194,7 @@ sort_x_axis <- function(sort_manual, label_width) { # hist_sort
     )
   }
 }
+
 
 #' @importFrom colorspace lighten
 #' @keywords internal
@@ -226,7 +226,7 @@ darken_color <- function(color, amount = 0.25, n = 3) {
 
 #' @keywords internal
 ggbarplot <- function(background, df, dfby, xvar, f_axis, s_axis, color_bg,
-                      sep_mark, by) {
+                      sep_mark, by, remove_underscores, label_width) {
   fill_bg <- lighten_color(color_bg)[2]
   if (isTRUE(background) && by == "NULL") {
 
@@ -235,16 +235,19 @@ ggbarplot <- function(background, df, dfby, xvar, f_axis, s_axis, color_bg,
                                        y = .data[["s_axis_scale"]]),
                         stat = "identity", color = color_bg,
                         fill = fill_bg, alpha = 1),
-      ggplot2::scale_y_continuous(sec.axis = sec_axis(~ . *
-                                                        max(df[[s_axis]],
-                                                            na.rm = TRUE) /
-                                                        max(df[[f_axis]],
-                                                            na.rm = TRUE),
-                                                      name = s_axis,
-                                                      labels = sep_mark),
-                                  labels = sep_mark,
-                                  limits = c(0, NA),
-                                  expand = expansion(mult = c(0, 0.01))
+      ggplot2::scale_y_continuous(sec.axis = ggplot2::sec_axis(
+        ~ . * max(df[[s_axis]], na.rm = TRUE) / max(df[[f_axis]], na.rm = TRUE),
+        name = stringr::str_wrap(
+          ifelse(isTRUE(remove_underscores), gsub("_", " ", s_axis), s_axis),
+          width = label_width
+        ),
+        #name = ifelse(isTRUE(remove_underscores), gsub("_", " ", s_axis), s_axis),
+        #name = s_axis,
+        labels = sep_mark
+      ),
+      labels = sep_mark,
+      limits = c(0, NA),
+      expand = expansion(mult = c(0, 0.01))
       )
     )
   } else if (isTRUE(background) && by != "NULL") {
@@ -254,16 +257,14 @@ ggbarplot <- function(background, df, dfby, xvar, f_axis, s_axis, color_bg,
                                        y = .data[["s_axis_scale"]]),
                         stat = "identity", color = color_bg, fill = fill_bg,
                         alpha = 1),
-      ggplot2::scale_y_continuous(sec.axis = sec_axis(~ . *
-                                                        max(df[[s_axis]],
-                                                            na.rm = TRUE) /
-                                                        max(dfby[[f_axis]],
-                                                            na.rm = TRUE),
-                                                      name = s_axis,
-                                                      labels = sep_mark),
-                                  labels = sep_mark,
-                                  limits = c(0, NA),
-                                  expand = expansion(mult = c(0, 0.01))
+      ggplot2::scale_y_continuous(sec.axis = ggplot2::sec_axis(
+        ~ . * max(df[[s_axis]], na.rm = TRUE) / max(dfby[[f_axis]], na.rm = T),
+        name = s_axis,
+        labels = sep_mark
+      ),
+      labels = sep_mark,
+      limits = c(0, NA),
+      expand = expansion(mult = c(0, 0.01))
       )
     )
   } else {
@@ -390,11 +391,11 @@ ggyscale <- function(background, sep_mark) {
 ggbarline <- function(background, df, dfby, xvar, f_axis,
                       f_axis_name, exposure, color_bg, color,
                       sep_mark, by, labels, sort_manual, label_width,
-                      show_total, total_color, total_name) {
+                      show_total, total_color, total_name, remove_underscores) {
   df <- scale_second_axis(background, df, dfby, f_axis, exposure, by)
   ggplot2::ggplot() +
     ggbarplot(background, df, dfby, xvar, f_axis, exposure,
-              color_bg, sep_mark, by) +
+              color_bg, sep_mark, by, remove_underscores, label_width) +
     ggpointline(df, dfby, xvar, f_axis, color, by,
                 show_total, total_color, total_name) +
     ggplot2::labs(y = f_axis_name, x = xvar) +

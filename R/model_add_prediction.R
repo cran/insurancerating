@@ -18,10 +18,10 @@
 #' @examples
 #' mod1 <- glm(nclaims ~ age_policyholder, data = MTPL,
 #'     offset = log(exposure), family = poisson())
-#' add_prediction(MTPL, mod1)
+#' mtpl_pred <- add_prediction(MTPL, mod1)
 #'
 #' # Include confidence bounds
-#' add_prediction(MTPL, mod1, conf_int = TRUE)
+#' mtpl_pred_ci <- add_prediction(MTPL, mod1, conf_int = TRUE)
 #'
 #' @export
 add_prediction <- function(data, ..., var = NULL, conf_int = FALSE,
@@ -29,6 +29,11 @@ add_prediction <- function(data, ..., var = NULL, conf_int = FALSE,
 
   objects <- list(...)
   object_names <- match.call(expand.dots = FALSE)$`...`
+
+  if (is.null(object_names)) {
+    stop("No object of class 'glm' found. Please provide at least one 'glm'
+         object to add model predictions.", call. = FALSE)
+  }
 
   if (!is.null(var) && length(var) != length(object_names)) {
     stop("Character vector 'var' should have the same length as number of
@@ -40,9 +45,10 @@ add_prediction <- function(data, ..., var = NULL, conf_int = FALSE,
   for (i in seq_len(length(object_names))) {
     object <- objects[[i]]
     object_name <- object_names[i]
-    addcol <- as.numeric(stats::predict(object, data, type = "response"))
 
+    addcol <- as.numeric(stats::predict(object, data, type = "response"))
     response_nm <- as.character(attributes(object$terms)$variables[[2]])
+
     if (is.null(var)) {
       var_nm <- paste0("pred_", response_nm, "_", object_name)
     } else {
